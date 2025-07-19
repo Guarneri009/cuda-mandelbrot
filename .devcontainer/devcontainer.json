@@ -4,6 +4,10 @@
 	"name": "C++",
 	"build": {
 		"dockerfile": "Dockerfile"
+	},
+	"runArgs": ["--gpus", "all"],
+	"hostRequirements": {
+		"gpu": "optional"
 	}
 
 	// Features to add to the dev container. More info: https://containers.dev/features.

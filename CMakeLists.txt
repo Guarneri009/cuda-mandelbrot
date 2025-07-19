@@ -27,27 +27,29 @@ else()
     message(STATUS "OpenMP support disabled.")
 endif()
 
-# For CUDA
-#if(POLICY CMP0146)
-#    cmake_policy(SET CMP0146 OLD)
-#endif()
 
-find_package(CUDAToolkit  QUIET)
-if(CUDA_FOUND)
+find_package(CUDAToolkit)
+if(CUDAToolkit_FOUND)
     message("Cuda version: " ${CUDA_VERSION})
     message(STATUS "CUDA detected: ${CMAKE_CUDA_COMPILER}")
     enable_language(CUDA)
     add_executable(${PROJECT_NAME} ${cpu_source_files} ${gpu_source_files})
 else()
+    message(STATUS "CUDA not detected")
     add_executable(${PROJECT_NAME} ${cpu_source_files})
 endif()
 
 # コンパイル時にCUDAが定義されるように設定
-if(CUDA_FOUND)
+if(CUDAToolkit_FOUND)
     target_compile_definitions(${PROJECT_NAME} PUBLIC __CUDACC__)
 endif()
 
+
 # CUDA固有のコンパイル設定
-set_target_properties(${PROJECT_NAME} PROPERTIES CUDA_ARCHITECTURES "61")
-# C++17とCUDA17を両方サポートするためのコンパイルオプション
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17 cuda_std_17)
+if(CUDAToolkit_FOUND)
+    set_target_properties(${PROJECT_NAME} PROPERTIES CUDA_ARCHITECTURES "61")
+    # C++17とCUDA17を両方サポートするためのコンパイルオプション
+    target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17 cuda_std_17)
+else()
+    target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+endif()
